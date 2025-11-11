@@ -33,3 +33,13 @@ jobs:
 
       - name: Check Python version
         run: python -v
+
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: "py-upper/requirements.txt"
+          update-pip: "true"
+
+      - name: Run tests
+        working-directory: py-upper
+        run: pytest -v
