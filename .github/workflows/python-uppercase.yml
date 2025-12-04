@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: ununtu-latest
     steps:
       - name: Check python version
         run: python -v
