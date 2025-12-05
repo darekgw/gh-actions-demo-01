@@ -14,13 +14,17 @@ jobs:
         run: echo '${{ toJson(github.event) }}'
 
       - name: Add the comment
+        id: add_comment
         run: |
           COMMENT_ID=$(gh issue comment $ISSUE --body "Wow, we have a new issue!" --repo $REPO)
           echo "COMMENT_ID is $COMMENT_ID"
+          echo "COMMENTID=$COMMENT_ID" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}
           REPO: ${{ github.event.repository.full_name }}
 
       - name: show comment_id
-        run: echo "COMMENT_ID is $COMMENT_ID"
+        run: echo "COMMENT_ID is $COM_ID"
+        env:
+          COM_ID: ${{ steps.add_comment.outputs.COMMENTID }}
