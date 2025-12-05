@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Debug event payload
-        run: echo ${{ toJson(github.event) }}
+        run: echo '${{ toJson(github.event) }}'
 
       - name: Add the comment
         run: |
