@@ -17,4 +17,15 @@ jobs:
         ISSUE: ${{ github.event.issue.number }}
         REPO: ${{ github.event.repository.full_name }}
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+
+    - name: Run Always
+      if: always()
+      run: echo "always"
+
+    - name: Run after Failure
+      if: failure()
+      run: echo "failure"
+
+    - name: Run after Success
+      if: success()
+      run: echo "success"
