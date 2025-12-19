@@ -55,4 +55,4 @@ jobs:
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body "$(cat review.txt)"
         env:
-          GH_TOKEN: $ {{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
