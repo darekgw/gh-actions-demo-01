@@ -53,6 +53,6 @@ jobs:
 
       - name: Post review as comment
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat review.txt)"
+          gh pr comment ${{ github.event.pull_request.number }} --body-file review.txt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
