@@ -32,27 +32,57 @@ jobs:
 #          # echo "$RESPONSE" > review.txt
 #          echo "$RESPONSE" |jq -r '.choices[0].message.content' > review.txt
 
+#      - name: Send code to OpenAI for review
+#        env:
+#          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+#        run: |
+#          # Zbuduj JSON\_payload bezpośrednio z pliku `diff.txt` (jq zadba o escape)
+#          JSON_PAYLOAD=$(jq -Rs \
+#            --arg model "gpt-4o-mini-2024-07-18" \
+#            --arg system "Review the following code diff and suggest improvements, detect errors or bad practices. Return your review in markdown format." \
+#            '{model: $model, messages: [{role: "system", content: $system}, {role: "user", content: .}]}' < diff.txt)
+#
+#          # Wyślij żądanie (poprawny nagłówek -H i poprawna zmienna środowiskowa)
+#          RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
+#            -H "Authorization: Bearer ${OPENAI_API_KEY}" \
+#            -H "Content-Type: application/json" \
+#            --data-binary "$JSON_PAYLOAD")
+#
+#          echo "$RESPONSE" | jq -r '.choices[0].message.content' > review.txt
+#
+#
+#      - name: Post review as comment
+#        run: |
+#          gh pr comment ${{ github.event.pull_request.number }} --body-file review.txt
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Kroki, które zastępują obecne `Send code to OpenAI for review` i `Post review as comment`
       - name: Send code to OpenAI for review
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          # Zbuduj JSON\_payload bezpośrednio z pliku `diff.txt` (jq zadba o escape)
+          set -eo pipefail
+          
+          if [ -z "${OPENAI_API_KEY}" ]; then
+            echo "Missing OPENAI_API_KEY" >&2
+            exit 1
+          fi
+          
           JSON_PAYLOAD=$(jq -Rs \
             --arg model "gpt-4o-mini-2024-07-18" \
             --arg system "Review the following code diff and suggest improvements, detect errors or bad practices. Return your review in markdown format." \
             '{model: $model, messages: [{role: "system", content: $system}, {role: "user", content: .}]}' < diff.txt)
-      
-          # Wyślij żądanie (poprawny nagłówek -H i poprawna zmienna środowiskowa)
-          RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/chat/completions" \
+          
+          # zwróć niezerowy kod przy HTTP error i zapisz ciało + status
+          RESPONSE=$(curl -sS -w "%{http_code}" -X POST "https://api.openai.com/v1/chat/completions" \
             -H "Authorization: Bearer ${OPENAI_API_KEY}" \
             -H "Content-Type: application/json" \
             --data-binary "$JSON_PAYLOAD")
-      
-          echo "$RESPONSE" | jq -r '.choices[0].message.content' > review.txt
-      
-
-      - name: Post review as comment
-        run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body-file review.txt
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          HTTP_STATUS="${RESPONSE: -3}"
+          BODY="${RESPONSE:0:-3}"
+          
+          echo "$BODY" > response.json
+          echo "OpenAI HTTP status: $HTTP_STATUS" >&2
+          jq . response.json >&2 || true
