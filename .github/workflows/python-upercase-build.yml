@@ -10,16 +10,18 @@ on:
 jobs:
   test:
     runs-on: ununtu-latest
-    steps:
+    strategy:
+      matrix:
+        pyversion: ['3.11', '3.12']
 
+    steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
         with:
-          path: "py-upper/requirements.txt"
-          update-pip: "true"
+          python-version: ${{ matrix.pyversion }}
 
       - name: Run tests
         working-directory: py-upper
@@ -27,6 +29,9 @@ jobs:
 
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        pyversion: ['3.11', '3.12']
     needs: test
     steps:
       - name: Checkout repo
@@ -35,7 +40,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.pyversion }}
 
       - name: Install PyInstaller
         run: pip install pyinstaller
@@ -50,5 +55,5 @@ jobs:
       - name: Save artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: uppercase-exe
+          name: "uppercase-exe-${{ matrix.pyversion }}"
           path: py-upper/dist/uppercase.exe
