@@ -55,3 +55,10 @@ jobs:
         with:
           name: "uppercase-exe-${{ matrix.pyversion }}"
           path: py-upper/dist/uppercase.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: py-upper/dist/uppercase.exe
+          body: "Binaries of the uppercase program compiled for different Python versions"
+          tag_name: ${{ github.ref_name }}
