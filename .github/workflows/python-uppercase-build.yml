@@ -22,6 +22,7 @@ jobs:
         uses: py-actions/py-dependency-install@v4
         with:
           python-version: ${{ matrix.pyversion }}
+          path: py-upper
 
       - name: Run tests
         working-directory: py-upper
