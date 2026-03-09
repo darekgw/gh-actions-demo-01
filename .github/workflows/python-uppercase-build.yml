@@ -3,13 +3,13 @@ name: Python Uppercase Build
 on:
   push:
     paths:
-      - ".github/workflows/python-upercase-build.yml"
+      - ".github/workflows/python-uppercase-build.yml"
       - "py-upper/**"
   workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ununtu-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         pyversion: ['3.11', '3.12']
